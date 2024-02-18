@@ -8,6 +8,13 @@ import datetime as dt
 
 def get_days_from_today(date):
     
+    while True:
+        try:
+            dt.datetime.strptime(date, '%Y-%m-%d')
+            break
+        except ValueError:
+            return 'Please enter date in format YYYY-MM-DD'
+        
     enter_date = dt.datetime.strptime(date, '%Y-%m-%d')
     current_date = dt.datetime.today()
     difference = current_date - enter_date
@@ -48,8 +55,9 @@ def normalize_phone(phone_number):
     elif ph_num[0] == '8':
         ph_num = '+3' + ph_num
 
-    elif ph_num[0] == '3':
+    elif ph_num[0] == '3' or len(ph_num) == 12:
         ph_num = '+' + ph_num
+
 
     return ph_num
 
@@ -64,9 +72,10 @@ def get_upcoming_birthdays(users):
         month_day = b_date_str[5:]
         b_date = dt.datetime.strptime(f"{current_year}.{month_day}", "%Y.%m.%d").date()
 
+
         if b_date < dt.datetime.now().date():
             b_date = dt.datetime.strptime(f"{current_year + 1}.{month_day}", "%Y.%m.%d").date()
-
+        
         if b_date.weekday() == 5:
             congratulation_date = b_date + dt.timedelta(days=2)
             del user["birthday"]
@@ -81,5 +90,8 @@ def get_upcoming_birthdays(users):
             congratulation_date = b_date
             del user["birthday"]
             user["congratulation_date"] = congratulation_date.strftime("%Y-%m-%d")
+
+        if congratulation_date - dt.datetime.now().date() >= dt.timedelta(days=7):
+            users.remove(user)
 
     return users
