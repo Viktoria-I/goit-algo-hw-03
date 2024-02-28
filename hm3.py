@@ -64,34 +64,35 @@ def normalize_phone(phone_number):
 
 #Fourth function
 def get_upcoming_birthdays(users):
-
+    
+    upcoming_birthdays = []
     current_year = dt.datetime.now().year
 
     for user in users:
         b_date_str = user["birthday"]
         month_day = b_date_str[5:]
+
         b_date = dt.datetime.strptime(f"{current_year}.{month_day}", "%Y.%m.%d").date()
 
-
         if b_date < dt.datetime.now().date():
-            b_date = dt.datetime.strptime(f"{current_year + 1}.{month_day}", "%Y.%m.%d").date()
-        
+            b_date = b_date.replace(year=current_year + 1)
+
         if b_date.weekday() == 5:
             congratulation_date = b_date + dt.timedelta(days=2)
-            del user["birthday"]
-            user["congratulation_date"] = congratulation_date.strftime("%Y-%m-%d")
-
         elif b_date.weekday() == 6:
             congratulation_date = b_date + dt.timedelta(days=1)
-            del user["birthday"]
-            user["congratulation_date"] = congratulation_date.strftime("%Y-%m-%d")
-
         else:
             congratulation_date = b_date
-            del user["birthday"]
-            user["congratulation_date"] = congratulation_date.strftime("%Y-%m-%d")
 
-        if congratulation_date - dt.datetime.now().date() >= dt.timedelta(days=7):
-            users.remove(user)
+        if congratulation_date - dt.datetime.now().date() <= dt.timedelta(days=7):
+            upcoming_birthdays.append({"name": user["name"], "congratulation_date": congratulation_date.strftime("%Y-%m-%d")})
 
-    return users
+    return upcoming_birthdays
+
+users = [
+    {"name": "John Doe", "birthday": "1985.03.02"},
+    {"name": "Jane Smith", "birthday": "1990.02.29"},
+    {"name": "Meg Peterson", "birthday": "1989.02.20"}
+]
+
+print(get_upcoming_birthdays(users))
